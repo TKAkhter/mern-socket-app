@@ -1,8 +1,8 @@
-// import "./Header.css";
-import { useHistory } from "react-router-dom";
+import { useEffect } from "react";
+import { baseUrl } from "../core";
+import Header from "../components/Header";
 import axios from "axios";
 import { useFormik } from "formik";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
@@ -12,14 +12,15 @@ import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import * as yup from "yup";
-import { baseUrl } from "../core";
 
 import { GlobalContext } from "../context/Context";
 import { useContext } from "react";
+import io from "socket.io-client";
+
+const socket = io(baseUrl);
 
 const validationSchema = yup.object({
   email: yup
@@ -32,29 +33,9 @@ const validationSchema = yup.object({
     .required("Password is required"),
 });
 
-const Copyright = (props) => {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href={baseUrl}>
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-};
-
 const theme = createTheme();
 
-const Login = () => {
-  let history = useHistory();
-
+function LiveScoreAdmin() {
   let { dispatch } = useContext(GlobalContext);
 
   const formik = useFormik({
@@ -101,8 +82,25 @@ const Login = () => {
     },
   });
 
+  useEffect(() => {
+    socket.on("connect", function () {
+      console.log("connected to server");
+    });
+    // to subcribe to a topic
+    socket.on("Test topic", function (data) {
+      // console.log(data);
+    });
+    socket.on("disconnect", function (message) {
+      console.log("disconnected from server: ", message);
+    });
+    return () => {
+      socket.close();
+    };
+  }, []);
+
   return (
     <>
+      <Header />
       <ThemeProvider theme={theme}>
         <Grid
           container
@@ -112,25 +110,9 @@ const Login = () => {
           <CssBaseline />
           <Grid
             item
-            xs={false}
-            sm={4}
-            md={7}
-            sx={{
-              backgroundImage: "url(https://source.unsplash.com/random)",
-              backgroundRepeat: "no-repeat",
-              backgroundColor: (t) =>
-                t.palette.mode === "light"
-                  ? t.palette.grey[50]
-                  : t.palette.grey[900],
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-          <Grid
-            item
             xs={12}
-            sm={8}
-            md={5}
+            sm={12}
+            md={12}
             component={Paper}
             elevation={6}
             square
@@ -144,11 +126,8 @@ const Login = () => {
                 alignItems: "center",
               }}
             >
-              <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                <LockOutlinedIcon />
-              </Avatar>
               <Typography component="h1" variant="h5">
-                Sign in
+                Live Score Admin
               </Typography>
               <Box
                 component="form"
@@ -156,6 +135,7 @@ const Login = () => {
                 onSubmit={formik.handleSubmit}
                 sx={{ mt: 1 }}
               >
+
                 <TextField
                   margin="normal"
                   required
@@ -210,17 +190,11 @@ const Login = () => {
                     </Link>
                   </Grid>
                   <Grid item>
-                    <Link
-                      onClick={() => {
-                        history.push("/signup");
-                      }}
-                      variant="body2"
-                    >
+                    <Link onClick={() => {}} variant="body2">
                       {"Don't have an account? Sign Up"}
                     </Link>
                   </Grid>
                 </Grid>
-                <Copyright sx={{ mt: 5 }} />
               </Box>
             </Box>
           </Grid>
@@ -228,6 +202,6 @@ const Login = () => {
       </ThemeProvider>
     </>
   );
-};
+}
 
-export default Login;
+export default LiveScoreAdmin;

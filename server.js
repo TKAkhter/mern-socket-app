@@ -1,4 +1,94 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var debug = require("debug")("mern-login-heroku:server");
+var http = require("http");
 const express = require("express");
+
+/**
+ * Get port from environment and store in Express.
+ */
+const app = express();
+var port = normalizePort(process.env.PORT || "5000");
+app.set("port", port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`);
+});
+server.on("error", onError);
+server.on("listening", onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== "listen") {
+    throw error;
+  }
+
+  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
+      process.exit(1);
+      break;
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  debug("Listening on " + bind);
+}
+
+// /usr/bin/env node end =========================================
+
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
@@ -10,7 +100,6 @@ const jwt = require("jsonwebtoken");
 // const usersRouter = require("./routes/users");
 
 const SECRET = process.env.SECRET || "12345";
-const app = express();
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -84,9 +173,9 @@ app.post("/api/v1/user", (req, res) => {
         if (user) {
           res.send("user already exist");
         } else {
-          console.log(req.body);
+          // console.log(req.body);
           bcrypt.stringToHash(req.body.password).then((passwordHash) => {
-            console.log("hash: ", passwordHash);
+            // console.log("hash: ", passwordHash);
 
             let newUser = new User({
               firstName: req.body.firstName,
@@ -107,7 +196,7 @@ app.post("/api/v1/user", (req, res) => {
 
 app.post("/api/v1/login", (req, res) => {
   if (!req.body.email || !req.body.password) {
-    console.log("required field missing");
+    // console.log("required field missing");
     res.status(403).send("required field missing");
     return;
   }
@@ -133,7 +222,7 @@ app.post("/api/v1/login", (req, res) => {
                   },
                   SECRET
                 );
-                console.log("token created: ", access_token);
+                // console.log("token created: ", access_token);
                 res.cookie("access_token", access_token, {
                   httpOnly: true,
                   // expires: (new Date().getTime + 300000), //5 minutes
@@ -163,12 +252,12 @@ app.post("/api/v1/login", (req, res) => {
 
 app.use((req, res, next) => {
   const access_token = req.cookies.access_token;
-  console.log("Cookie: ", access_token);
+  // console.log("Cookie: ", access_token);
   if (!access_token) {
     return res.sendStatus(403);
   }
   jwt.verify(access_token, SECRET, function (err, decoded) {
-    console.log("decoded: ", decoded); // bar
+    // console.log("decoded: ", decoded); // bar
     req.body._decoded = decoded;
 
     if (!err) {
@@ -182,7 +271,7 @@ app.use((req, res, next) => {
 // get the cookie incoming request
 app.get("/api/v1/getcookie", (req, res) => {
   //show the saved cookies
-  console.log(req.cookies);
+  // console.log(req.cookies);
   res.send(req.cookies);
 });
 
@@ -252,5 +341,42 @@ app.get("/**", (req, res, next) => {
   res.sendFile(path.join(__dirname, "./view/build/index.html"));
   // res.redirect("/")
 });
+
+const { Server } = require("socket.io");
+
+// handing over server access to socket.io
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: "*",
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("New client connected with id: ", socket.id);
+
+  // to emit data to a certain client
+  socket.emit("topic 1", "some data 23");
+
+  // collecting connected users in a array
+  // connectedUsers.push(socket)
+
+  socket.on("disconnect", (message) => {
+    console.log("Client disconnected with id: ", message);
+  });
+});
+
+// to emit data to a certain client
+//  connectedUsers[0].emit("topic 1", "some data")
+
+setInterval(() => {
+  // to emit data to all connected client
+  // first param is topic name and second is json data
+  io.emit("Test topic", {
+    event: "ADDED_ITEM",
+    data: "some data",
+  });
+  console.log("emiting data to all client");
+}, 10000);
 
 module.exports = app;

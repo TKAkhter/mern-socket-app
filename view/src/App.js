@@ -2,6 +2,8 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
+import LiveScore from "./pages/LiveScore";
+import LiveScoreAdmin from "./pages/LiveScoreAdmin";
 import { useState } from "react";
 import axios from "axios";
 import { baseUrl } from "./core";
@@ -34,7 +36,12 @@ function App() {
           <Route exact path="/">
             <Home />
           </Route>
-
+          <Route exact path="/livescore">
+            <LiveScore />
+          </Route>
+          <Route exact path="/livescore-admin">
+            <LiveScoreAdmin />
+          </Route>
           <Redirect to="/" />
         </Switch>
       ) : (
@@ -48,7 +55,6 @@ function App() {
           <Route exact path="/signup">
             <Signup />
           </Route>
-
           <Redirect to="/" />
         </Switch>
       )}
