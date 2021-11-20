@@ -142,11 +142,16 @@ const Post = mongoose.model("Post", {
 
 const LiveScore = mongoose.model("LiveScore", {
   teamOne: String,
+  teamOneStatus: String,
+  teamOneScore: String,
+  teamOneWicket: String,
+  teamOneOver: String,
   teamTwo: String,
-  bat: String,
-  score: String,
-  wicket: String,
-  over: String,
+  teamTwoStatus: String,
+  teamTwoScore: String,
+  teamTwoWicket: String,
+  teamTwoOver: String,
+  comentry: String,
 });
 
 mongoose.connection.on("connected", () => console.log("mongoose connected"));
@@ -368,25 +373,26 @@ app.get("/api/v1/post", (req, res) => {
 });
 
 app.post("/api/v1/score", (req, res) => {
-  const newScore = new LiveScore({
+  const score = {
     teamOne: req.body.teamOne,
+    teamOneStatus: req.body.teamOneStatus,
+    teamOneScore: req.body.teamOneScore,
+    teamOneWicket: req.body.teamOneWicket,
+    teamOneOver: req.body.teamOneOver,
     teamTwo: req.body.teamTwo,
-    bat: req.body.bat,
-    score: req.body.score,
-    wicket: req.body.wicket,
-    over: req.body.over,
-  });
+    teamTwoStatus: req.body.teamTwoStatus,
+    teamTwoScore: req.body.teamTwoScore,
+    teamTwoWicket: req.body.teamTwoWicket,
+    teamTwoOver: req.body.teamTwoOver,
+    comentry: req.body.comentry,
+  };
+
+  const newScore = new LiveScore(score);
+
   newScore.save().then(() => {
     console.log("Score created");
 
-    io.emit("SCORE", {
-      teamOne: req.body.teamOne,
-      teamTwo: req.body.teamTwo,
-      bat: req.body.bat,
-      score: req.body.score,
-      wicket: req.body.wicket,
-      over: req.body.over,
-    });
+    io.emit("SCORE", score);
 
     res.send("Score created");
   });

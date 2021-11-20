@@ -2,17 +2,35 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { baseUrl } from "../core";
 import Header from "../components/Header";
-// import { GlobalContext } from "../context/Context";
-// import { useContext } from "react";
-import Stack from "@mui/material/Stack";
-import Card from "@mui/material/Card";
-// import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-// import Button from "@mui/material/Button";
+import Avatar from "@mui/material/Avatar";
+import CssBaseline from "@mui/material/CssBaseline";
+import Link from "@mui/material/Link";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+import Divider from "@mui/material/Divider";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import io from "socket.io-client";
 
-// const socket = io(baseUrl);
+const Copyright = (props) => {
+  return (
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
+      {"Copyright © "}
+      <Link color="inherit" href={baseUrl}>
+        Your Website
+      </Link>{" "}
+      {new Date().getFullYear()}
+      {"."}
+    </Typography>
+  );
+};
+
+const theme = createTheme();
 
 function LiveScore() {
   const [score, setScore] = useState({});
@@ -48,36 +66,100 @@ function LiveScore() {
   return (
     <>
       <Header />
-      <div style={{ margin: "1rem" }}>
-        <h1> Score Board </h1>
-
-        <Stack spacing={2} direction="column">
-          <Card sx={{ minWidth: 275 }}>
-            <CardContent>
-              <Typography
-                sx={{ fontSize: 14 }}
-                color="text.secondary"
-                gutterBottom
-              >
-                {score?.teamOne} vs. {score?.teamTwo} (bat {score.bat})
-              </Typography>
-              <Typography variant="h5" component="div">
-                {score?.score} / {score?.wicket}
-              </Typography>
-              <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                over: {score.over}
-              </Typography>
-              <Typography variant="body2">
-                comentry:{" "}
-                <b> {score?.comentry || "Hassan Ali just droped the catch"}</b>
-              </Typography>
-            </CardContent>
-            {/* <CardActions>
-                      <Button size="small">Learn More</Button>
-                  </CardActions> */}
-          </Card>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Typography component="h1" variant="h4" sx={{ my: 3 }}>
+          Live Score
+        </Typography>
+        <Typography component="h2" variant="h5" sx={{ my: 3 }}>
+          Match
+        </Typography>
+        <Stack
+          spacing={2}
+          direction="row"
+          divider={<Divider orientation="vertical" flexItem />}
+          justifyContent="space-around"
+          alignItems="center"
+        >
+          <Stack
+            spacing={2}
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h2" variant="h5" sx={{ my: 3 }}>
+              {score?.teamOne}
+            </Typography>
+            <Typography
+              sx={{ fontSize: 14 }}
+              color="text.secondary"
+              gutterBottom
+            >
+              ({score.teamOneStatus})
+            </Typography>
+            <Typography variant="h4" component="div">
+              {score?.teamOneScore} / {score?.teamOneWicket}
+            </Typography>
+            <Typography sx={{ mb: 1.5 }} color="text.secondary">
+              ({score.teamOneOver} overs)
+            </Typography>
+          </Stack>
+          <Stack
+            spacing={2}
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h2" variant="h5" sx={{ my: 3 }}>
+              {score?.teamTwo}
+            </Typography>
+            <Typography
+              sx={{ fontSize: 14 }}
+              color="text.secondary"
+              gutterBottom
+            >
+              ({score.teamTwoStatus})
+            </Typography>
+            <Typography variant="h4" component="div">
+              {score?.teamTwoScore} / {score?.teamTwoWicket}
+            </Typography>
+            <Typography sx={{ mb: 1.5 }} color="text.secondary">
+              ({score.teamTwoOver} overs)
+            </Typography>
+          </Stack>
         </Stack>
-      </div>
+        <Stack
+          spacing={2}
+          direction="row"
+          divider={<Divider orientation="vertical" flexItem />}
+          justifyContent="space-around"
+          alignItems="center"
+          sx={{ my: 5 }}
+        >
+          <Typography variant="h5" component="div">
+            comentry: {score?.comentry || "Hassan Ali just droped the catch"}
+          </Typography>
+        </Stack>
+        <Stack
+          spacing={2}
+          direction="row"
+          divider={<Divider orientation="vertical" flexItem />}
+          justifyContent="space-around"
+          alignItems="center"
+          sx={{ my: 5 }}
+        >
+          <Typography variant="h5" component="div">
+            Live from Stadium
+          </Typography>
+        </Stack>
+        <Copyright sx={{ my: 5 }} />
+      </ThemeProvider>
     </>
   );
 }

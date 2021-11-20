@@ -2,25 +2,61 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { baseUrl } from "../core";
 import Header from "../components/Header";
-// import { GlobalContext } from "../context/Context";
-// import { useContext } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-// import Stack from "@mui/material/Stack";
-// import io from "socket.io-client";
+import Avatar from "@mui/material/Avatar";
+import CssBaseline from "@mui/material/CssBaseline";
+import Link from "@mui/material/Link";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+import Divider from "@mui/material/Divider";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import Image from "material-ui-image";
+// import LiveScore from "./LiveScore";
 
-// const socket = io(baseUrl);
+const Copyright = (props) => {
+  return (
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
+      {"Copyright © "}
+      <Link color="inherit" href={baseUrl}>
+        Your Website
+      </Link>{" "}
+      {new Date().getFullYear()}
+      {"."}
+    </Typography>
+  );
+};
+
+const theme = createTheme();
 
 function LiveScoreAdmin() {
   const [score, setScore] = useState({
     teamOne: "",
+    teamOneFlag: "https://source.unsplash.com/random",
+    teamOneStatus: "",
+    teamOneScore: "",
+    teamOneWicket: "",
+    teamOneOver: "",
     teamTwo: "",
-    bat: "",
-    score: "",
-    wicket: "",
-    over: "",
+    teamTwoFlag: "https://source.unsplash.com/random",
+    teamTwoStatus: "",
+    teamTwoScore: "",
+    teamTwoWicket: "",
+    teamTwoOver: "",
+    commentry: "",
   });
+
+  const [countries, setCountries] = useState({});
 
   useEffect(() => {
     axios
@@ -28,6 +64,17 @@ function LiveScoreAdmin() {
       .then((res) => {
         console.log("res +++: ", res.data);
         setScore(res.data);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get(
+        "https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/index.json"
+      )
+      .then((res) => {
+        console.log("flags +++: ", res.data);
+        setCountries(res.data);
       });
   }, []);
 
@@ -42,96 +89,269 @@ function LiveScoreAdmin() {
   return (
     <>
       <Header />
-      <div style={{ margin: "1rem" }}>
-        <h1> Dashboard Control page </h1>
-
-        <Box
-          component="form"
-          sx={{
-            "& > :not(style)": { m: 1, width: "25ch" },
-          }}
-          noValidate
-          autoComplete="off"
-        >
-          <TextField
-            label="Team 1"
-            variant="standard"
-            value={score.teamOne}
-            onChange={(e) => {
-              setScore((prev) => {
-                return { ...prev, teamOne: e.target.value };
-              });
-            }}
-            placeholder="enter team one name"
-          />
-          <TextField
-            label="Team 2"
-            variant="standard"
-            value={score.teamTwo}
-            onChange={(e) => {
-              setScore((prev) => {
-                return { ...prev, teamTwo: e.target.value };
-              });
-            }}
-            placeholder="enter team two name"
-          />{" "}
-          <br />
-          <TextField
-            label="Bating team"
-            variant="standard"
-            value={score.bat}
-            onChange={(e) => {
-              setScore((prev) => {
-                return { ...prev, bat: e.target.value };
-              });
-            }}
-            placeholder="who is batting"
-          />{" "}
-          <br />
-          <TextField
-            label="runs/score"
-            variant="standard"
-            type="number"
-            value={score.score}
-            onChange={(e) => {
-              setScore((prev) => {
-                return { ...prev, score: e.target.value };
-              });
-            }}
-            placeholder="What's the score"
-          />{" "}
-          <br />
-          <TextField
-            label="wicket"
-            variant="standard"
-            type="number"
-            value={score.wicket}
-            onChange={(e) => {
-              setScore((prev) => {
-                return { ...prev, wicket: e.target.value };
-              });
-            }}
-            placeholder="how many wickets"
-          />{" "}
-          <br />
-          <TextField
-            label="over"
-            variant="standard"
-            type="number"
-            value={score.over}
-            onChange={(e) => {
-              setScore((prev) => {
-                return { ...prev, over: e.target.value };
-              });
-            }}
-            placeholder="how many overs"
-          />{" "}
-          <br />
-          <Button variant="contained" onClick={submit}>
-            Post
-          </Button>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Typography component="h1" variant="h4" sx={{ my: 3 }}>
+          Dashboard Control page
+        </Typography>
+        <Typography component="h2" variant="h5" sx={{ my: 3 }}>
+          Match
+        </Typography>
+        <Box component="form" noValidate autoComplete="off" fullWidth>
+          <Stack
+            spacing={2}
+            direction="row"
+            divider={<Divider orientation="vertical" flexItem />}
+            justifyContent="end"
+            alignItems="center"
+            sx={{ my: 5 }}
+          >
+            <Button variant="contained" onClick={submit}>
+              Go Live!
+            </Button>
+          </Stack>
+          <Stack
+            spacing={2}
+            direction="row"
+            divider={<Divider orientation="vertical" flexItem />}
+            justifyContent="space-around"
+            alignItems="center"
+          >
+            <Stack
+              spacing={2}
+              direction="column"
+              justifyContent="center"
+              alignItems="center"
+            >
+              {/* <Image src='https://source.unsplash.com/random' /> */}
+              <TextField
+                label="Team 1"
+                variant="standard"
+                value={score.teamOne}
+                onChange={(e) => {
+                  setScore((prev) => {
+                    return { ...prev, teamOne: e.target.value };
+                  });
+                }}
+                placeholder="Enter Team One"
+              />
+              {/* <InputLabel id="team-one-label-id">Team 1</InputLabel>
+              <Select
+                labelId="team-one-label-id"
+                id="team-one-input"
+                variant="standard"
+                value={score.teamOne}
+                onChange={(e) => {
+                  setScore((prev) => {
+                    return { ...prev, teamOne: e.target.value };
+                  });
+                }}
+                label="Team 1"
+              >
+                {countries.map((item, index) => {
+                  return (
+                    <MenuItem key={index} value={item.code}>
+                      {item.name}
+                    </MenuItem>
+                  );
+                })}
+              </Select> */}
+              <TextField
+                label="Status"
+                variant="standard"
+                value={score.teamOneStatus}
+                onChange={(e) => {
+                  setScore((prev) => {
+                    return { ...prev, teamOneStatus: e.target.value };
+                  });
+                }}
+                placeholder="Status Of Team"
+              />
+              <Box component="div">
+                <TextField
+                  label="Score"
+                  variant="standard"
+                  type="number"
+                  value={score.teamOneScore}
+                  sx={{ mx: 1 }}
+                  onChange={(e) => {
+                    setScore((prev) => {
+                      return { ...prev, teamOneScore: e.target.value };
+                    });
+                  }}
+                  placeholder="What's The Score"
+                />
+                <TextField
+                  label="Wicket(s)"
+                  variant="standard"
+                  type="number"
+                  value={score.teamOneWicket}
+                  sx={{ mx: 1 }}
+                  onChange={(e) => {
+                    setScore((prev) => {
+                      return { ...prev, teamOneWicket: e.target.value };
+                    });
+                  }}
+                  placeholder="How Many Wickets"
+                />
+              </Box>
+              <TextField
+                label="Over(s)"
+                variant="standard"
+                type="number"
+                value={score.teamOneOver}
+                onChange={(e) => {
+                  setScore((prev) => {
+                    return { ...prev, teamOneOver: e.target.value };
+                  });
+                }}
+                placeholder="How Many Overs"
+              />
+            </Stack>
+            <Stack
+              spacing={2}
+              direction="column"
+              justifyContent="center"
+              alignItems="center"
+            >
+              {/* <Image src='https://source.unsplash.com/random' /> */}
+              {/* <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+                <LockOutlinedIcon />
+              </Avatar> */}
+              <TextField
+                label="Team 2"
+                variant="standard"
+                value={score.teamTwo}
+                onChange={(e) => {
+                  setScore((prev) => {
+                    return { ...prev, teamTwo: e.target.value };
+                  });
+                }}
+                placeholder="Enter Team Two"
+              />
+              {/* <InputLabel id="team-two-label-id">Team 2</InputLabel>
+              <Select
+                labelId="team-two-label-id"
+                id="team-two-input"
+                variant="standard"
+                value={score.teamTwo}
+                placeholder="Enter Team Two"
+                onChange={(e) => {
+                  setScore((prev) => {
+                    return { ...prev, teamTwo: e.target.value };
+                  });
+                }}
+                label="Team 2"
+              >
+                {countries.map((item, index) => {
+                  return (
+                    <MenuItem key={index} value={item.code}>
+                      {item.name}
+                    </MenuItem>
+                  );
+                })}
+              </Select> */}
+              <TextField
+                label="Status"
+                variant="standard"
+                value={score.teamTwoStatus}
+                onChange={(e) => {
+                  setScore((prev) => {
+                    return { ...prev, teamTwoStatus: e.target.value };
+                  });
+                }}
+                placeholder="Status Of Team"
+              />
+              <Box component="div">
+                <TextField
+                  label="Score"
+                  variant="standard"
+                  type="number"
+                  value={score.teamTwoScore}
+                  sx={{ mx: 1 }}
+                  onChange={(e) => {
+                    setScore((prev) => {
+                      return { ...prev, teamTwoScore: e.target.value };
+                    });
+                  }}
+                  placeholder="What's The Score"
+                />
+                <TextField
+                  label="Wicket(s)"
+                  variant="standard"
+                  type="number"
+                  value={score.teamTwoWicket}
+                  sx={{ mx: 1 }}
+                  onChange={(e) => {
+                    setScore((prev) => {
+                      return { ...prev, teamTwoWicket: e.target.value };
+                    });
+                  }}
+                  placeholder="How Many Wickets"
+                />
+              </Box>
+              <TextField
+                label="Over(s)"
+                variant="standard"
+                type="number"
+                value={score.teamTwoOver}
+                onChange={(e) => {
+                  setScore((prev) => {
+                    return { ...prev, teamTwoOver: e.target.value };
+                  });
+                }}
+                placeholder="How Many Overs"
+              />
+            </Stack>
+          </Stack>
+          <Stack
+            spacing={2}
+            direction="row"
+            divider={<Divider orientation="vertical" flexItem />}
+            justifyContent="space-around"
+            alignItems="center"
+            sx={{ my: 5 }}
+          >
+            <Typography variant="h5" component="div">
+              <TextField
+                label="Commentry"
+                variant="standard"
+                value={score.comentry}
+                onChange={(e) => {
+                  setScore((prev) => {
+                    return { ...prev, comentry: e.target.value };
+                  });
+                }}
+                placeholder="who is batting"
+              />
+            </Typography>
+          </Stack>
+          <Stack
+            spacing={2}
+            direction="row"
+            divider={<Divider orientation="vertical" flexItem />}
+            justifyContent="space-around"
+            alignItems="center"
+            sx={{ my: 5 }}
+          >
+            <Typography variant="h5" component="div">
+              Live from Stadium
+            </Typography>
+          </Stack>
+          {/* <Stack
+            spacing={2}
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Typography component="h1" variant="h4" sx={{ my: 3 }}>
+              Preview
+            </Typography>
+            <LiveScore />
+          </Stack> */}
         </Box>
-      </div>
+        <Copyright sx={{ my: 5 }} />
+      </ThemeProvider>
     </>
   );
 }
