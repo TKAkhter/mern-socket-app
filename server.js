@@ -179,7 +179,7 @@ io.on("connection", (socket) => {
 app.use("/", express.static(path.join(__dirname, "/view/build")));
 
 app.get("/", (req, res, next) => {
-  res.sendFile(path.join(__dirname, "./web/build/index.html"));
+  res.sendFile(path.join(__dirname, "./view/build/index.html"));
 });
 
 app.post("/api/v1/user", (req, res) => {
