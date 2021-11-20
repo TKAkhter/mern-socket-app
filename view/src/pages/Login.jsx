@@ -92,7 +92,11 @@ const Login = () => {
               },
             });
             // history.push("/")
+<<<<<<< HEAD
             window.location.reload();
+=======
+            window.location.reload(false);
+>>>>>>> e78f75a0fe773941fca2a82b569b80b794559aa8
           }
         })
         .catch((e) => {

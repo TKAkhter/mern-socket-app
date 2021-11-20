@@ -36,6 +36,22 @@ const Header = () => {
             <Button
               color="inherit"
               onClick={() => {
+                history.push("/livescore-admin");
+              }}
+            >
+              Live Score Admin
+            </Button>
+            <Button
+              color="inherit"
+              onClick={() => {
+                history.push("/livescore");
+              }}
+            >
+              Live Score
+            </Button>
+            <Button
+              color="inherit"
+              onClick={() => {
                 history.push("/");
               }}
             >
