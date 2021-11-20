@@ -7,12 +7,6 @@ import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import LiveScore from "./pages/LiveScore";
 import LiveScoreAdmin from "./pages/LiveScoreAdmin";
-<<<<<<< HEAD
-=======
-import { useState } from "react";
-import axios from "axios";
-import { baseUrl } from "./core";
->>>>>>> e78f75a0fe773941fca2a82b569b80b794559aa8
 
 function App() {
   let [isLogged, setIsLogged] = useState(false);
