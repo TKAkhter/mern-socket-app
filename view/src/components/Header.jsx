@@ -17,7 +17,7 @@ const Header = () => {
   let { dispatch } = useContext(GlobalContext);
 
   return (
-    <>{console.log(document.cookie)}
+    <>
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
@@ -31,7 +31,7 @@ const Header = () => {
               <MenuIcon />
             </IconButton>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              News
+              Saylani Web Application
             </Typography>
             <Button
               color="inherit"
@@ -40,6 +40,22 @@ const Header = () => {
               }}
             >
               Home
+            </Button>
+            <Button
+              color="inherit"
+              onClick={() => {
+                history.push("/livescore");
+              }}
+            >
+              Live Score
+            </Button>
+            <Button
+              color="inherit"
+              onClick={() => {
+                history.push("/livescore-admin");
+              }}
+            >
+              Live Score Admin
             </Button>
             <Button
               color="inherit"

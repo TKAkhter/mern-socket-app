@@ -165,11 +165,13 @@ const Posts = () => {
                 >
                   <ListItem
                     secondaryAction={
-                      <IconButton edge="end" aria-label="delete">
-                        <DeleteIcon
-                          onClick={(eachTodo) => deletePost(eachTodo)}
-                          id={eachTodo._id}
-                        />
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={(eachTodo) => deletePost(eachTodo)}
+                        id={eachTodo._id}
+                      >
+                        <DeleteIcon />
                       </IconButton>
                     }
                   >

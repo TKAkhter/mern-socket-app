@@ -92,6 +92,7 @@ const Login = () => {
               },
             });
             // history.push("/")
+            window.location.reload();
           }
         })
         .catch((e) => {
