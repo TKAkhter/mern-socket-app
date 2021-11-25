@@ -97,6 +97,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt-inzi");
 const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
+const postmark = require("postmark");
 
 const SECRET = process.env.SECRET || "12345";
 
@@ -115,6 +116,11 @@ app.use(
   })
 );
 
+// Postmark Send an email:
+const postMarkToken =
+  process.env.POSTMARK_KEY || "35493d97-374a-44c3-a3d3-b6e9cd4f6169";
+let client = new postmark.ServerClient(postMarkToken);
+
 mongoose.connect(
   "mongodb+srv://nodejs-prac:nodejs-prac@cluster0.gqhek.mongodb.net/mern-login-heroku?retryWrites=true&w=majority"
 );
@@ -128,6 +134,13 @@ const User = mongoose.model("User", {
     type: Date,
     default: Date.now,
   },
+});
+
+const Otp = mongoose.model("Otp", {
+  email: String,
+  otp: String,
+  used: { type: Boolean, default: false },
+  created: { type: Date, default: Date.now },
 });
 
 const Post = mongoose.model("Post", {
@@ -187,6 +200,12 @@ app.get("/", (req, res, next) => {
   res.sendFile(path.join(__dirname, "./view/build/index.html"));
 });
 
+// get the cookie incoming request
+app.get("/api/v1/getcookie", (req, res) => {
+  //show the saved cookies
+  // console.log(req.cookies);
+  res.send(req.cookies);
+});
 app.post("/api/v1/user", (req, res) => {
   // Bcrypt
 
@@ -285,6 +304,114 @@ app.post("/api/v1/login", (req, res) => {
   );
 });
 
+app.post("/api/v1/otp", (req, res, next) => {
+  if (!req.body.email) {
+    console.log("required field missing");
+    res.status(403).send("required field missing");
+    return;
+  }
+  console.log("req.body: ", req.body);
+
+  User.findOne({ email: req.body.email }, (err, user) => {
+    if (err) {
+      res.status(500).send("error in getting database");
+    } else {
+      if (user) {
+        function getRandomArbitrary(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+        const otp = getRandomArbitrary(11111, 99999).toFixed(0);
+
+        bcrypt.stringToHash(otp).then((hash) => {
+          let newOtp = new Otp({
+            email: req.body.email,
+            otp: hash,
+          });
+          newOtp.save((err, saved) => {
+            if (!err) {
+              client
+                .sendEmail({
+                  From: "talha.akhter@thedigitz.com",
+                  To: req.body.email,
+                  Subject: "forget password OTP",
+                  TextBody: `Hi ${user.name}, your 5 digit OTP is: ${otp}`,
+                })
+                .then((success, error) => {
+                  if (!success) {
+                    console.log("postmark error: ", error);
+                  }
+                });
+
+              res.send({ otpSent: true, message: "otp genrated" });
+            } else {
+              console.log("error: ", err);
+              res.status(500).send("error saving otp on server");
+            }
+          });
+        });
+      } else {
+        res.send("user not found");
+      }
+    }
+  });
+});
+app.post("/api/v1/forgot_password", (req, res, next) => {
+  if (!req.body.email || !req.body.otp || !req.body.newPassword) {
+    console.log("required field missing");
+    res.status(403).send("required field missing");
+    return;
+  }
+  console.log("req.body: ", req.body);
+
+  Otp.findOne({ email: req.body.email })
+    .sort({ _id: -1 })
+    .exec((err, otp) => {
+      if (err) {
+        res.status(500).send("error in getting database");
+      } else {
+        if (otp) {
+          const created = new Date(otp.created).getTime;
+          const now = new Date().getTime;
+          const diff = now - created;
+
+          if (diff > 300000 || otp.used) {
+            res.status(401).send("otp not valid");
+          } else {
+            bcrypt.varifyHash(req.body.otp, otp.otp).then((isMatch) => {
+              if (isMatch) {
+                bcrypt.stringToHash(req.body.newPassword).then((hashPassword) => {
+                  User.findOneAndUpdate(
+                    { email: req.body.email },
+                    { password: hashPassword },
+                    {},
+                    (err, updated) => {
+                      if (!err) {
+                        res.send("password updated");
+                      } else {
+                        res.status(500).send("error updating user");
+                      }
+                    }
+                  );
+                });
+                otp.update({ used: true }).exec((err, updated) => {
+                  if (!err) {
+                    console.log("otp updated");
+                  } else {
+                    console.log("otp update fail: ", err);
+                  }
+                });
+              } else {
+                res.status(401).send("otp not valid");
+              }
+            });
+          }
+        } else {
+          res.status(400).send("invalid otp");
+        }
+      }
+    });
+});
+
 app.use((req, res, next) => {
   const access_token = req.cookies.access_token;
   // console.log("Cookie: ", access_token);
@@ -301,13 +428,6 @@ app.use((req, res, next) => {
       res.sendStatus(403);
     }
   });
-});
-
-// get the cookie incoming request
-app.get("/api/v1/getcookie", (req, res) => {
-  //show the saved cookies
-  // console.log(req.cookies);
-  res.send(req.cookies);
 });
 
 app.post("/api/v1/logout", (req, res, next) => {

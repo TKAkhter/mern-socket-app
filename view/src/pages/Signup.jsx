@@ -77,7 +77,7 @@ const SignUp = () => {
         .then((res) => {
           console.log("res: ", res.data);
           if (res.data.email) {
-            // history.push("/login");
+            history.push("/login");
             setRedirect(true);
           }
         })

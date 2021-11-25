@@ -205,7 +205,12 @@ const Login = () => {
                 </Button>
                 <Grid container>
                   <Grid item xs>
-                    <Link href="#" variant="body2">
+                    <Link
+                      onClick={() => {
+                        history.push("/forgot-password");
+                      }}
+                      variant="body2"
+                    >
                       Forgot password?
                     </Link>
                   </Grid>

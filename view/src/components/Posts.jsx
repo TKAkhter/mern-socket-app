@@ -28,6 +28,16 @@ const Posts = () => {
 
   const [todo, settodo] = useState([]);
   const [itemChange, setItemChange] = useState(true);
+  let [isLogged, setIsLogged] = useState(false);
+  axios
+    .get(`${baseUrl}/api/v1/getcookie`)
+    .then((res) => {
+      setIsLogged(true);
+    })
+    .catch((e) => {
+      console.log("error: ", e);
+      setIsLogged(false);
+    });
 
   useEffect(() => {
     axios
@@ -91,102 +101,112 @@ const Posts = () => {
   return (
     <>
       <Box sx={{ flexGrow: 1, m: 2 }}>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
           Posts
         </Typography>
-        <Box
-          component="form"
-          noValidate
-          onSubmit={formik.handleSubmit}
-          sx={{ mt: 1 }}
-        >
-          <Paper style={{ margin: 16, padding: 16 }} elevation={3}>
-            <Grid container alignItems="center" spacing={2}>
-              <Grid xs={5} md={10} item style={{ paddingRight: 16 }}>
-                <TextField
-                  fullWidth
-                  placeholder="Title"
-                  color="primary"
-                  id="outlined-basic"
-                  label="Title"
-                  variant="filled"
-                  name="title"
-                  value={formik.values.title}
-                  onChange={formik.handleChange}
-                  error={formik.touched.title && Boolean(formik.errors.title)}
-                  helperText={formik.touched.title && formik.errors.title}
-                />
-              </Grid>
-              <Grid xs={5} md={10} item style={{ paddingRight: 16 }}>
-                <TextField
-                  fullWidth
-                  color="primary"
-                  id="outlined-basic"
-                  placeholder="Description"
-                  label="Description"
-                  variant="filled"
-                  name="description"
-                  value={formik.values.description}
-                  onChange={formik.handleChange}
-                  error={
-                    formik.touched.description &&
-                    Boolean(formik.errors.description)
-                  }
-                  helperText={
-                    formik.touched.description && formik.errors.description
-                  }
-                />
-              </Grid>
-              <Grid xs={2} md={2} item>
-                <Button
-                  fullWidth
-                  color="success"
-                  variant="contained"
-                  type="submit"
-                >
-                  Add
-                </Button>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Box>
-        <Paper style={{ margin: 16, padding: 16 }} elevation={3}>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Recently Added:
+        {isLogged ? (
+          <Typography variant="h6" component="div" sx={{ my: 2, flexGrow: 1 }}>
+            Please login to Add/Remove Posts
           </Typography>
-          <List spacing={3}>
-            {todo.map((eachTodo) => {
-              return (
-                <Paper
-                  style={{ margin: 10 }}
-                  elevation={3}
-                  id={eachTodo._id}
-                  key={eachTodo._id}
-                >
-                  <ListItem
-                    secondaryAction={
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={(eachTodo) => deletePost(eachTodo)}
-                        id={eachTodo._id}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemText
-                      primary={eachTodo.title}
-                      secondary={
-                        eachTodo.description + " By " + eachTodo.firstName
+        ) : (
+          <Box component="div">
+            <Box
+              component="form"
+              noValidate
+              onSubmit={formik.handleSubmit}
+              sx={{ mt: 1 }}
+            >
+              <Paper style={{ margin: 16, padding: 16 }} elevation={3}>
+                <Grid container alignItems="center" spacing={2}>
+                  <Grid xs={5} md={10} item style={{ paddingRight: 16 }}>
+                    <TextField
+                      fullWidth
+                      placeholder="Title"
+                      color="primary"
+                      id="outlined-basic"
+                      label="Title"
+                      variant="filled"
+                      name="title"
+                      value={formik.values.title}
+                      onChange={formik.handleChange}
+                      error={
+                        formik.touched.title && Boolean(formik.errors.title)
+                      }
+                      helperText={formik.touched.title && formik.errors.title}
+                    />
+                  </Grid>
+                  <Grid xs={5} md={10} item style={{ paddingRight: 16 }}>
+                    <TextField
+                      fullWidth
+                      color="primary"
+                      id="outlined-basic"
+                      placeholder="Description"
+                      label="Description"
+                      variant="filled"
+                      name="description"
+                      value={formik.values.description}
+                      onChange={formik.handleChange}
+                      error={
+                        formik.touched.description &&
+                        Boolean(formik.errors.description)
+                      }
+                      helperText={
+                        formik.touched.description && formik.errors.description
                       }
                     />
-                  </ListItem>
-                </Paper>
-              );
-            })}
-          </List>
-        </Paper>
+                  </Grid>
+                  <Grid xs={2} md={2} item>
+                    <Button
+                      fullWidth
+                      color="success"
+                      variant="contained"
+                      type="submit"
+                    >
+                      Add
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Paper>
+            </Box>
+            <Paper style={{ margin: 16, padding: 16 }} elevation={3}>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                Recently Added:
+              </Typography>
+              <List spacing={3}>
+                {todo.map((eachTodo) => {
+                  return (
+                    <Paper
+                      style={{ margin: 10 }}
+                      elevation={3}
+                      id={eachTodo._id}
+                      key={eachTodo._id}
+                    >
+                      <ListItem
+                        secondaryAction={
+                          <IconButton
+                            edge="end"
+                            aria-label="delete"
+                            onClick={(eachTodo) => deletePost(eachTodo)}
+                            id={eachTodo._id}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        }
+                      >
+                        <ListItemText
+                          primary={eachTodo.title}
+                          secondary={
+                            eachTodo.description + " By " + eachTodo.firstName
+                          }
+                        />
+                      </ListItem>
+                    </Paper>
+                  );
+                })}
+              </List>
+            </Paper>
+          </Box>
+        )}
       </Box>
     </>
   );

@@ -10,12 +10,23 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { baseUrl } from "../core";
 import { GlobalContext } from "../context/Context";
 import { useContext } from "react";
+import { useState } from "react";
 
 const Header = () => {
   let history = useHistory();
 
   let { dispatch } = useContext(GlobalContext);
 
+  let [isLogged, setIsLogged] = useState(false);
+  axios
+    .get(`${baseUrl}/api/v1/getcookie`)
+    .then((res) => {
+      setIsLogged(true);
+    })
+    .catch((e) => {
+      console.log("error: ", e);
+      setIsLogged(false);
+    });
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
@@ -57,28 +68,39 @@ const Header = () => {
             >
               Live Score Admin
             </Button>
-            <Button
-              color="inherit"
-              onClick={() => {
-                axios
-                  .post(
-                    `${baseUrl}/api/v1/logout`,
-                    {},
-                    {
-                      withCredentials: true,
-                    }
-                  )
-                  .then((res) => {
-                    console.log("res +++: ", res.data);
+            {!isLogged ? (
+              <Button
+                color="inherit"
+                onClick={() => {
+                  axios
+                    .post(
+                      `${baseUrl}/api/v1/logout`,
+                      {},
+                      {
+                        withCredentials: true,
+                      }
+                    )
+                    .then((res) => {
+                      console.log("res +++: ", res.data);
 
-                    dispatch({
-                      type: "USER_LOGOUT",
+                      dispatch({
+                        type: "USER_LOGOUT",
+                      });
                     });
-                  });
-              }}
-            >
-              Logout
-            </Button>
+                }}
+              >
+                Logout
+              </Button>
+            ) : (
+              <Button
+                color="inherit"
+                onClick={() => {
+                  history.push("/login");
+                }}
+              >
+                Login
+              </Button>
+            )}
           </Toolbar>
         </AppBar>
       </Box>
